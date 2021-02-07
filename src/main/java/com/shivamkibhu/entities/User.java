@@ -1,6 +1,9 @@
 package com.shivamkibhu.entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,10 +16,15 @@ public class User {
     private int id;
 
 //    @Column(name = "Name_col", length = 100)  can configure the column name, length etc...
+    @NotBlank(message = "Name is required !!")
     private String name;
 
     @Column(unique = true)
+    @Email(regexp = "^[a-zA-Z0-9+-.-]+@[a-zA-Z0-9.-]+$")
+    @NotBlank(message = "Email is required !!")
     private String email;
+
+    @NotBlank(message = "Password is required !!")
     private String password;
     private String role;
     private String imageUrl;

@@ -25,7 +25,7 @@
 	        		
 	        			<h1 class="text-center">!!! Register !!!</h1>
 	        			
-	        			<form action="" th:action="@{/do_register}" method="post" th:object="${user}">
+	        			<form novalidate action="" th:action="@{/do_register}" method="post" th:object="${user}">
 	        			
 	        				<!-- Name field -->
 	        				<div class="form-group">
@@ -35,11 +35,16 @@
 							    <input 
 							    	name="name"
 							    	type="text" 
-							    	class="form-control" 
+							    	class="form-control"
+									th:classappend="${#fields.hasErrors('name') ? 'is-invalid' : ''}"
 							    	id="name_field"  
 							    	placeholder= "Enter here..."
 							    	required="required"
 							    	th:value="${user.name}"/>
+
+								<div class="invalid-feedback" th:each="e : ${#fields.errors('name')}" th:text="${e}">
+								</div>
+
 							</div>
 							
 							<!-- Email field -->
@@ -75,7 +80,7 @@
 							<!-- About field -->
 							<div class="form-group">
 								<label></label>
-								<textarea name="about" th:value="${user.about}" placeholder="Enter about yourself..." rows="7" class="form-control"></textarea>
+								<textarea name="about" th:text="${user.about}" placeholder="Enter about yourself..." rows="7" class="form-control"></textarea>
 							
 							</div>
 							
