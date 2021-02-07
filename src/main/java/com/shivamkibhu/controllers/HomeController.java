@@ -24,7 +24,7 @@ public class HomeController {
 
     @RequestMapping("/")
     public String home(Model model) {
-        model.addAttribute("title", "Home- Contact Bazaar");
+        model.addAttribute("title", "Dev branch - Contact Bazaar");
         return "home";
     }
 
