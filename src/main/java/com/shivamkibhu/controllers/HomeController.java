@@ -8,10 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.shivamkibhu.dao.UserRepo;
 import com.shivamkibhu.entities.User;
@@ -75,6 +72,13 @@ public class HomeController {
             session.setAttribute("message", new Message("Some went wrong- " + e.getMessage(), "alert-danger"));
             return "signup";
         }
+    }
+
+    // custom spring security login
+    @GetMapping("/signin")
+    public String customSecurityLogin(Model model){
+        model.addAttribute("title", "Login- Contact Bazaar");
+        return "securityLogin";
     }
 
 }
