@@ -1,11 +1,16 @@
 package com.shivamkibhu.controllers;
 
+import com.shivamkibhu.dao.ContactRepo;
 import com.shivamkibhu.dao.UserRepo;
 import com.shivamkibhu.entities.Contact;
 import com.shivamkibhu.entities.User;
 import com.shivamkibhu.helper.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/user")
@@ -25,6 +32,9 @@ public class UserController {
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private ContactRepo contactRepo;
 
 
     // This executes everytime whenever we call any api in this class.
@@ -65,7 +75,7 @@ public class UserController {
         try {
             // image handler
             if(file.isEmpty()) {
-                // handle if image will be empty
+                contact.setImage("default.png");
             }else{
                 String userImageName = file.getOriginalFilename();
                 contact.setImage(userImageName);
@@ -101,10 +111,36 @@ public class UserController {
 
 
 
-    // show contacts
-    @GetMapping("/show-contacts")
-    public String showContacts(Model model){
-        return "show_contacts";
+    // show all contacts
+    @GetMapping("/show-contacts/{page}")
+    public String showContacts(@PathVariable("page") Integer pageIdx, Model model, Principal principal){
+        model.addAttribute("title", "User Contacts");
+
+        String email = principal.getName();
+        User user = userRepo.getUserByUserName(email);
+
+        int itemPerPage = 10;   // Number of items per page
+        Pageable pageable = PageRequest.of(pageIdx, itemPerPage);
+        Page<Contact> contacts = contactRepo.findContactsByUser(user.getId(), pageable);
+
+        model.addAttribute("contacts", contacts);
+        model.addAttribute("currentPage", pageIdx);
+        model.addAttribute("totalPages", contacts.getTotalPages());
+
+        return "normal/show_contacts";
+    }
+
+
+    // show single contact details
+    @GetMapping("/{id}/contact")
+    public String showContactDetail(@PathVariable("id") Integer id, Model model){
+
+        Optional<Contact> contactOptional = contactRepo.findById(id);
+        Contact contact = contactOptional.get();
+
+        model.addAttribute("contact", contact);
+
+        return "normal/contact_detail";
     }
 
 }

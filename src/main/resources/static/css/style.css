@@ -101,3 +101,14 @@ body{
     margin-left: 20%;
 }
 /* Content style ENDS */
+
+
+
+/* Contacts profile pic START */
+.contact_profile_picture{
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+/* Contacts profile pic START */

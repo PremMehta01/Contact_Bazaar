@@ -11,3 +11,5 @@ public class SmartcontactmanagerApplication {
 	}
 
 }
+
+// 24 over
