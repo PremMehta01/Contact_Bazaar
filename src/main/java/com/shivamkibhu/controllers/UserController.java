@@ -117,7 +117,7 @@ public class UserController {
         String email = principal.getName();
         User user = userRepo.getUserByUserName(email);
 
-        int itemPerPage = 8;   // Number of items per page
+        int itemPerPage = 5;   // Number of items per page
         Pageable pageable = PageRequest.of(pageIdx, itemPerPage);
         Page<Contact> contacts = contactRepo.findContactsByUser(user.getId(), pageable);
 
@@ -233,4 +233,10 @@ public class UserController {
         return "/normal/profile";
     }
 
+
+    // Open setting
+    @GetMapping("/settings")
+    public String openSettings(){
+        return "normal/settings";
+    }
 }
