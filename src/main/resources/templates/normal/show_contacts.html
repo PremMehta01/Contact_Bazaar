@@ -10,7 +10,8 @@
 <body>
     <section>
 
-        <div class="card mr-3 ml-3">
+        <!-- This will run when user has at least one contact in his/her list -->
+        <div th:if="${totalPages > 0}" class="card mr-3 ml-3">
 
             <div class="card-body">
 
@@ -47,7 +48,7 @@
 
                             <td>
 
-                                <button class="btn btn-danger btn-sm"> Delete </button>
+                                <button th:onclick=" |deleteContact(${c.id})| " class="btn btn-danger btn-sm"> Delete </button>
                                 <button class="btn btn-primary btn-sm"> Update </button>
 
                             </td>
@@ -83,6 +84,9 @@
             </div>
 
         </div>
+
+        <!-- This will run when user has not added any contacts yet -->
+        <h3 th:unless="${totalPages > 0}" class="text-center p-3 bg-danger text-white" > Please add contacts to see here!!! </h3>
 
     </section>
 </body>

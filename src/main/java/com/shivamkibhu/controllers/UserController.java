@@ -39,7 +39,7 @@ public class UserController {
 
     // This executes everytime whenever we call any api in this class.
     @ModelAttribute
-    public void addCommonData(Model model, Principal principal){
+    public void addCommonData(Model model, Principal principal) {
         String email = principal.getName();
 
         User user = userRepo.getUserByUserName(email);
@@ -49,16 +49,15 @@ public class UserController {
 
     // dashboard
     @RequestMapping("/index")
-    public String dashboard(Model model, Principal principal){
+    public String dashboard(Model model, Principal principal) {
         model.addAttribute("title", "Dashboard");
         return "normal/user_dashboard";
     }
 
 
-
     // Add contacts from dashboard
     @GetMapping("/add-contact")
-    public String openAddContactForm(Model model){
+    public String openAddContactForm(Model model) {
         model.addAttribute("title", "Add Contact");
         model.addAttribute("contact", new Contact());
 
@@ -66,17 +65,16 @@ public class UserController {
     }
 
 
-
     // Save contact
     @PostMapping("/process-contact")
     public String processContact(@ModelAttribute Contact contact, @RequestParam("profileImage") MultipartFile file,
-                                 Principal principal, HttpSession session){
+                                 Principal principal, HttpSession session) {
 
         try {
             // image handler
-            if(file.isEmpty()) {
+            if (file.isEmpty()) {
                 contact.setImage("default.png");
-            }else{
+            } else {
                 String userImageName = file.getOriginalFilename();
                 contact.setImage(userImageName);
 
@@ -98,7 +96,7 @@ public class UserController {
             // add required details to session, so that we can show success toast message on the top
             session.setAttribute("message", new Message("Your contact has been successfully added. Please add more!!", "success"));
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error, while saving contact: " + e.getMessage());
 
@@ -110,10 +108,9 @@ public class UserController {
     }
 
 
-
     // show all contacts
     @GetMapping("/show-contacts/{page}")
-    public String showContacts(@PathVariable("page") Integer pageIdx, Model model, Principal principal){
+    public String showContacts(@PathVariable("page") Integer pageIdx, Model model, Principal principal) {
         model.addAttribute("title", "User Contacts");
 
         String email = principal.getName();
@@ -133,14 +130,42 @@ public class UserController {
 
     // show single contact details
     @GetMapping("/{id}/contact")
-    public String showContactDetail(@PathVariable("id") Integer id, Model model){
+    public String showContactDetail(@PathVariable("id") Integer id, Model model, Principal principal) {
 
         Optional<Contact> contactOptional = contactRepo.findById(id);
         Contact contact = contactOptional.get();
 
-        model.addAttribute("contact", contact);
+        String email = principal.getName();
+        User user = userRepo.getUserByUserName(email);
+
+        // check authorization if this user has permission to see this contact or not
+        if (user.getId() == contact.getUser().getId())     // so that any user cannot manually edit the url and get the contact details which is under another user
+            model.addAttribute("contact", contact);
 
         return "normal/contact_detail";
+    }
+
+
+    // delete contact
+    @GetMapping("/delete/{id}")
+    public String deleteContact(@PathVariable("id") Integer id, Principal principal, HttpSession session){
+        Optional<Contact> optionalContact = contactRepo.findById(id);
+        Contact contact = optionalContact.get();
+
+        String email = principal.getName();
+        User user = userRepo.getUserByUserName(email);
+
+        // check authorization(if this user has permission to delete this contact)
+        if(contact.getUser().getId() == user.getId()) {
+            // TODO: delete contact image from /static/img/{contact.getImage()}
+
+            contactRepo.delete(contact);  // contactRepo.deleteById(id);
+            session.setAttribute("message", new Message("Contact deleted successfully", "success"));
+        }else{
+            session.setAttribute("message", new Message("You are not authorized to delete this contact", "danger"));
+        }
+
+        return "redirect:/user/show-contacts/0";
     }
 
 }

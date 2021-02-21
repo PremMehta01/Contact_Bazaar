@@ -9,7 +9,9 @@
 </head>
 <body>
 <section>
-    <div class="card mr-3 ml-3">
+
+    <!-- Below div will run when "contact" object will be send via UserController -->
+    <div class="card mr-3 ml-3" th:if="${contact}">
 
         <div class="card-body">
 
@@ -55,7 +57,7 @@
 
                 <div class="container mt-3">
 
-                    <button class="btn btn-danger btn-block"> Delete </button>
+                    <button th:onclick=" |deleteContact(${contact.id})| " class="btn btn-danger btn-block"> Delete </button>
                     <button class="btn btn-primary btn-block"> Update </button>
 
                 </div>
@@ -65,6 +67,10 @@
         </div>
 
     </div>
+
+    <!-- Below will run when "contact" object will not be send via UserController i.e when user is not allowed to see the contact detail of this perticular id -->
+    <h3 class="text-center p-3 bg-danger text-white" th:unless="${contact}" > You don't have permission to see this contact, because you haven't added this contact in your contact list!!! </h3>
+
 </section>
 </body>
 </html>
