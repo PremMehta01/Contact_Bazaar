@@ -57,8 +57,13 @@
 
                 <div class="container mt-3">
 
-                    <button th:onclick=" |deleteContact(${contact.id})| " class="btn btn-danger btn-block"> Delete </button>
-                    <button class="btn btn-primary btn-block"> Update </button>
+                    <!-- Since we are handling delete function as a GET method, so we dont need to put delete btn inside any form unlike update btn -->
+                    <button th:onclick=" |deleteContact(${contact.id})| " class="btn btn-danger btn-sm"> Delete </button>
+
+                    <!-- Since we are handling update function as a POST method, so we need to put update btn inside a form unlike delete btn -->
+                    <form th:action="@{'/user/update-contact/' + ${contact.id}}" method="post" class="mt-2">
+                        <button type="submit" class="btn btn-primary btn-sm"> Update </button>
+                    </form>
 
                 </div>
 

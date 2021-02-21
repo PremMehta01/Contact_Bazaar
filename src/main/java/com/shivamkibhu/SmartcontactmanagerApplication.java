@@ -12,4 +12,4 @@ public class SmartcontactmanagerApplication {
 
 }
 
-// 26 over
+// 27 => till 11 min over

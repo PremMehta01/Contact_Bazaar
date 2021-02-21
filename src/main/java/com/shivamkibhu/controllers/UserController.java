@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -116,7 +117,7 @@ public class UserController {
         String email = principal.getName();
         User user = userRepo.getUserByUserName(email);
 
-        int itemPerPage = 10;   // Number of items per page
+        int itemPerPage = 8;   // Number of items per page
         Pageable pageable = PageRequest.of(pageIdx, itemPerPage);
         Page<Contact> contacts = contactRepo.findContactsByUser(user.getId(), pageable);
 
@@ -148,7 +149,7 @@ public class UserController {
 
     // delete contact
     @GetMapping("/delete/{id}")
-    public String deleteContact(@PathVariable("id") Integer id, Principal principal, HttpSession session){
+    public String deleteContact(@PathVariable("id") Integer id, Principal principal, HttpSession session) throws IOException {
         Optional<Contact> optionalContact = contactRepo.findById(id);
         Contact contact = optionalContact.get();
 
@@ -157,7 +158,10 @@ public class UserController {
 
         // check authorization(if this user has permission to delete this contact)
         if(contact.getUser().getId() == user.getId()) {
-            // TODO: delete contact image from /static/img/{contact.getImage()}
+            // deleting image from folder
+            File deleteFile = new ClassPathResource("static/img").getFile();
+            File completeDeletePath = new File(deleteFile, contact.getImage());
+            completeDeletePath.delete();
 
             contactRepo.delete(contact);  // contactRepo.deleteById(id);
             session.setAttribute("message", new Message("Contact deleted successfully", "success"));
@@ -166,6 +170,67 @@ public class UserController {
         }
 
         return "redirect:/user/show-contacts/0";
+    }
+
+
+    // update contact
+    @PostMapping("/update-contact/{id}")
+    public String updateContact(@PathVariable("id") Integer id, Model model){
+        model.addAttribute("title", "Update Contact");
+
+        Contact contact = contactRepo.findById(id).get();
+        model.addAttribute("contact", contact);
+
+        return "normal/update_contact";
+    }
+
+    // Process update contact OR update contact to db
+    @PostMapping("/process-update-contact")
+    public String processUpdateContact(@ModelAttribute Contact contact, @RequestParam("profileImage") MultipartFile file,
+                                       Model model, HttpSession session, Principal principal){
+
+        try {
+
+            Contact oldContact = contactRepo.findById(contact.getId()).get();
+
+            if(file.isEmpty()){
+                contact.setImage(oldContact.getImage());
+            }else {
+                // delete previous photo
+                File deleteFile = new ClassPathResource("static/img").getFile();
+                File completeDeletePath = new File(deleteFile, oldContact.getImage());
+                completeDeletePath.delete();
+
+                //update new photo
+                String userImageName = file.getOriginalFilename();
+                contact.setImage(userImageName);
+
+                File saveFile = new ClassPathResource("static/img").getFile();
+                Path path = Paths.get(saveFile.getAbsolutePath() + File.separator + userImageName);
+
+                Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            User user = userRepo.getUserByUserName(principal.getName());
+            contact.setUser(user);
+
+            contactRepo.save(contact);
+
+            session.setAttribute("message", new Message("Yay!! Contact get updated..", "success"));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return "redirect:/user/" + contact.getId() + "/contact";
+    }
+
+
+    // Your profile
+    @GetMapping("/profile")
+    public String yourProfile(Model model){
+        model.addAttribute("title", "Profile Page");
+        return "/normal/profile";
     }
 
 }

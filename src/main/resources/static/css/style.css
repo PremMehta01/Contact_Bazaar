@@ -112,3 +112,15 @@ body{
     border-radius: 50%;
 }
 /* Contacts profile pic START */
+
+
+/* Search by contact name START */
+.search-container{
+    position: relative;
+}
+
+.search-result{
+    position: absolute;
+}
+/* Search by contact name END */
+
